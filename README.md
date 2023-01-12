@@ -15,7 +15,7 @@ module t1(
 ```
 
 ### 變數宣告
-```
+```verilog
 assign dot=0;
 reg fire=0, w=0; 
 reg clear=0, fail=0, up=1, r_bound=0,m_bound=1;
@@ -235,14 +235,14 @@ parameter   logic [7:0] wait_start [7:0] =
 ```
 
 ### Clock設定
-```
+```verilog
 divfreq3 T0(CLK, CLK_10k);
 divfreq1 T1(CLK, CLK_1hz);
 divfreq2 T2(CLK, CLK_10hz);
 ```
 
 ### 初始化
-```
+```verilog
 initial
 			begin
 				cnt = 0;
@@ -263,7 +263,7 @@ initial
 ```
 
 ### 計時器
-```
+```verilog
 always @(posedge CLK_1hz)
 			begin
 				if(START && ~STOP && ~clear && ~fail)begin
@@ -372,13 +372,13 @@ always @(posedge CLK_1hz)
 ```
 
 ### 射擊按鈕觸發
-```
+```verilog
 always @(negedge FIRE)
 			fire = ~fire;
 ```
 
 ### 主要按鍵控制(左右、START、暫停)
-```
+```verilog
 always @(posedge CLK_10hz)
 			begin 
 				if(horse>=103 || ~fail) horse=0;
@@ -505,7 +505,7 @@ always @(posedge CLK_10hz)
 ```
 
 ### 畫面顯示
-```
+```verilog
 always @(posedge CLK_10k) //updata screen
 			begin
 				if(cnt >= 7)	cnt = 0;
@@ -559,7 +559,7 @@ always @(posedge CLK_10k) //updata screen
 ```
 
 ### 調整Clock
-```
+```verilog
 module divfreq3(input CLK, output reg CLK_10k);
 	reg [24:0] count;
 	always @(posedge CLK)
