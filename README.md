@@ -2,7 +2,7 @@
 final project
 
 ### modile
-```
+```verilog
 module t1(
 				output reg [7:0] DATA_G, DATA_B, DATA_R, 
 				output reg [6:0] SEG,
