@@ -21,7 +21,7 @@ reg fire=0, w=0;
 reg clear=0, fail=0, up=1, r_bound=0,m_bound=1;
 reg seg2=1, seg3=1, seg4=1; 
 reg [2:0] board_l, board_m, board_r;
-parameter   logic [7:0] wait_start [7:0] = 
+parameter   logic [7:0] wait_start [7:0] =   //開始前等待畫面
           '{
             8'b11010111,
             8'b10111011,
@@ -32,7 +32,7 @@ parameter   logic [7:0] wait_start [7:0] =
             8'b10111011,
             8'b11010111
           };
-        logic [2:0] block0 [7:0] = 
+        logic [2:0] block0 [7:0] =   //場上沒有磚塊
           '{
             3'b111,
             3'b111,
@@ -43,7 +43,7 @@ parameter   logic [7:0] wait_start [7:0] =
             3'b111,
             3'b111
           };
-        logic [2:0] block1_start [7:0] = 
+        logic [2:0] block1_start [7:0] =   //初始化場上可以打一下的磚塊的位置
           '{
             3'b111,
             3'b111,
@@ -54,7 +54,7 @@ parameter   logic [7:0] wait_start [7:0] =
             3'b111,
             3'b111
           };
-        logic [2:0] block1[7:0] = 
+        logic [2:0] block1[7:0] =   //可變動場上可以打一下的磚塊的位置
           '{
             3'b111,
             3'b111,
@@ -65,7 +65,7 @@ parameter   logic [7:0] wait_start [7:0] =
             3'b111,
             3'b111
           };
-        logic [2:0] block2_start [7:0] = 
+        logic [2:0] block2_start [7:0] =   //初始化場上可以打兩下的磚塊的位置
           '{
             3'b111,
             3'b111,
@@ -76,7 +76,7 @@ parameter   logic [7:0] wait_start [7:0] =
             3'b111,
             3'b111
           };
-        logic [2:0] block2 [7:0] = 
+        logic [2:0] block2 [7:0] =   //可變動場上可以打兩下的磚塊的位置
         '{
             3'b111,
             3'b111,
@@ -88,7 +88,7 @@ parameter   logic [7:0] wait_start [7:0] =
             3'b111
           };
 
-        logic [7:0] wait_fail [7:0] =
+        logic [7:0] wait_fail [7:0] =  //球掉下板子之後的等待畫面
           '{
             8'b11111111,
             8'b10001111,
@@ -99,21 +99,21 @@ parameter   logic [7:0] wait_start [7:0] =
             8'b10001011,
             8'b10001111
           };
-        logic [6:0] seg [3:0] = 
+        logic [6:0] seg [3:0] =   //可變動七段顯示器宣告
           '{
             7'b0000001,
             7'b0000001,
             7'b0000001,
             7'b0000001
           };
-        logic [6:0] wait_seg [3:0] = 
+        logic [6:0] wait_seg [3:0] =   //初始化的七段顯示器宣告
           '{
             7'b0000001,
             7'b0000001,
             7'b0000001,
             7'b0000001
           };
-        logic [7:0] wait_ffp [111:0] =
+        logic [7:0] wait_ffp [111:0] =   //三條命用盡之後畫面
           '{
             8'b11111111,
             8'b11111111,
@@ -263,6 +263,7 @@ initial
 ```
 
 ### 計時器
+最高可數到1小時
 ```verilog
 always @(posedge CLK_1hz)
 			begin
@@ -378,12 +379,14 @@ always @(negedge FIRE)
 ```
 
 ### 主要按鍵控制(左右、START、暫停)
+按鈕控制及球反彈機制
 ```verilog
 always @(posedge CLK_10hz)
 			begin 
 				if(horse>=103 || ~fail) horse=0;
 				else horse = horse +1;
-				//move the board, cannot move when board touch the border
+				
+				//控制板子移動
 				if(START && ~STOP && ~clear && ~fail)begin
 					if(L==1 && board_l != 3'b000)	begin
 						board_l=board_l-1'b1;
@@ -395,6 +398,8 @@ always @(posedge CLK_10hz)
 						board_m=board_m+1'b1;
 						board_r=board_r+1'b1;
 					end
+					
+					//控制球移動
 					if(~fire)begin w=0;	ball_x=board_m;	ball_y = 3'b001; up=1;end
 					if(fire)begin
 						if(up)begin
@@ -403,7 +408,7 @@ always @(posedge CLK_10hz)
 								ball_y=ball_y-1; up=~up; 
 							end
 						end
-						else begin //down
+						else begin 
 							if(ball_y>1)ball_y=ball_y-1;
 							else if(ball_y==1 && ball_x==board_l) begin //go left
 								ball_y=ball_y+1; 	up=~up;
@@ -442,7 +447,8 @@ always @(posedge CLK_10hz)
 								r_bound=~r_bound; 
 							end
 						end
-						//block control
+						
+						//球打到磚塊的反應
 						for(integer t=0;t<8;t=t+1) begin //row
 							for(integer h=0;h<3;h=h+1) begin //col								
 								if(block2[t][h]==0 && ball_x==t && ball_y==(h+5) && up && r_bound && ~m_bound)begin //when ball on block2 and right in
@@ -505,6 +511,7 @@ always @(posedge CLK_10hz)
 ```
 
 ### 畫面顯示
+8*8及七段顯示
 ```verilog
 always @(posedge CLK_10k) //updata screen
 			begin
