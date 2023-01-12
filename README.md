@@ -88,7 +88,7 @@ parameter   logic [7:0] wait_start [7:0] =
             3'b111
           };
 
-        logic [7:0] wait_fail [7:0] = //didn't catch ball -> err~ emoji
+        logic [7:0] wait_fail [7:0] =
           '{
             8'b11111111,
             8'b10001111,
@@ -99,14 +99,14 @@ parameter   logic [7:0] wait_start [7:0] =
             8'b10001011,
             8'b10001111
           };
-        logic [6:0] seg [3:0] = //when start -> 7-seg=00:00
+        logic [6:0] seg [3:0] = 
           '{
             7'b0000001,
             7'b0000001,
             7'b0000001,
             7'b0000001
           };
-        logic [6:0] wait_seg [3:0] = //before start -> 7-seg=13:14
+        logic [6:0] wait_seg [3:0] = 
           '{
             7'b0000001,
             7'b0000001,
@@ -246,12 +246,12 @@ divfreq2 T2(CLK, CLK_10hz);
 initial
 			begin
 				cnt = 0;
-				DATA_R = 8'b11111111; //no color
+				DATA_R = 8'b11111111; 
 				DATA_G = 8'b11111111;
 				DATA_B = 8'b11111111;
-				COMM = 4'b1000; //8x8 enable s2~0 
-				COM = 4'b1110; //7-seg com1~4
-				SEG = 7'b0000001; //0
+				COMM = 4'b1000;  
+				COM = 4'b1110; 
+				SEG = 7'b0000001; 
 				board_l = 3'b010;
 				board_m = 3'b011;
 				board_r = 3'b100;
