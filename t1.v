@@ -8,11 +8,11 @@ module t1(
 				input CLK, L, R, START, STOP, FIRE
 );
 	assign dot=0;
-	reg fire=0, w=0; //w->transition(when ball down to the ground
+	reg fire=0, w=0; 
 	reg clear=0, fail=0, up=1, r_bound=0,m_bound=1;
-	reg seg2=1, seg3=1, seg4=1; //clock shift to next com
-	reg [2:0] board_l, board_m, board_r; //movable board on bottom
-	parameter   logic [7:0] wait_start [7:0] = //before start -> heart
+	reg seg2=1, seg3=1, seg4=1; 
+	reg [2:0] board_l, board_m, board_r; 
+	parameter   logic [7:0] wait_start [7:0] = 	//開始前等待畫面
 						'{
 							8'b11010111,
 							8'b10111011,
@@ -23,7 +23,7 @@ module t1(
 							8'b10111011,
 							8'b11010111
 						};
-					logic [2:0] block0 [7:0] = 
+					logic [2:0] block0 [7:0] =  //場上沒有磚塊
 						'{
 							3'b111,
 							3'b111,
@@ -34,7 +34,7 @@ module t1(
 							3'b111,
 							3'b111
 						};
-					logic [2:0] block1_start [7:0] = 
+					logic [2:0] block1_start [7:0] =   //初始化場上可以打一下的磚塊的位置
 						'{
 							3'b111,
 							3'b111,
@@ -45,7 +45,7 @@ module t1(
 							3'b111,
 							3'b111
 						};
-					logic [2:0] block1[7:0] = 
+					logic [2:0] block1[7:0] =   //可變動場上可以打一下的磚塊的位置
 						'{
 							3'b111,
 							3'b111,
@@ -56,7 +56,7 @@ module t1(
 							3'b111,
 							3'b111
 						};
-					logic [2:0] block2_start [7:0] = 
+					logic [2:0] block2_start [7:0] =   //初始化場上可以打兩下的磚塊的位置
 						'{
 							3'b111,
 							3'b111,
@@ -67,7 +67,7 @@ module t1(
 							3'b111,
 							3'b111
 						};
-					logic [2:0] block2 [7:0] = 
+					logic [2:0] block2 [7:0] =   //可變動場上可以打兩下的磚塊的位置
 					'{
 							3'b111,
 							3'b111,
@@ -79,7 +79,7 @@ module t1(
 							3'b111
 						};
 					
-					logic [7:0] wait_fail [7:0] = //didn't catch ball -> err~ emoji
+					logic [7:0] wait_fail [7:0] = //求掉下板子之後的等待畫面
 						'{
 							8'b11111111,
 							8'b10001111,
@@ -90,21 +90,21 @@ module t1(
 							8'b10001011,
 							8'b10001111
 						};
-					logic [6:0] seg [3:0] = //when start -> 7-seg=00:00
+					logic [6:0] seg [3:0] = //可變動七段顯示器宣告
 						'{
 							7'b0000001,
 							7'b0000001,
 							7'b0000001,
 							7'b0000001
 						};
-					logic [6:0] wait_seg [3:0] = //before start -> 7-seg=13:14
+					logic [6:0] wait_seg [3:0] = //初始化的七段顯示器宣告
 						'{
 							7'b0000001,
 							7'b0000001,
 							7'b0000001,
 							7'b0000001
 						};
-					logic [7:0] wait_ffp [111:0] =
+					logic [7:0] wait_ffp [111:0] =  //三條命用盡之後畫面
 						'{
 							8'b11111111,
 							8'b11111111,
@@ -231,12 +231,12 @@ module t1(
 		initial
 			begin
 				cnt = 0;
-				DATA_R = 8'b11111111; //no color
+				DATA_R = 8'b11111111; 
 				DATA_G = 8'b11111111;
 				DATA_B = 8'b11111111;
-				COMM = 4'b1000; //8x8 enable s2~0 
-				COM = 4'b1110; //7-seg com1~4
-				SEG = 7'b0000001; //0
+				COMM = 4'b1000; 
+				COM = 4'b1110; 
+				SEG = 7'b0000001; 
 				board_l = 3'b010;
 				board_m = 3'b011;
 				board_r = 3'b100;
@@ -246,7 +246,7 @@ module t1(
 				BLOOD=3'b111;
 			end
 		
-		//timing
+		//時間(最高可數到1小時)
 		always @(posedge CLK_1hz)
 			begin
 				if(START && ~STOP && ~clear && ~fail)begin
@@ -353,15 +353,17 @@ module t1(
 					seg[3] = 7'b0000001;
 			end
 			
-		//if press the bottom->fire the ball
+		//射擊按鈕觸發器
 		always @(negedge FIRE)
 			fire = ~fire;
 	
-		always @(posedge CLK_10hz)//actually 5HZ
+		//按鈕控制及球反彈機制
+		always @(posedge CLK_10hz) 
 			begin 
 				if(horse>=103 || ~fail) horse=0;
 				else horse = horse +1;
-				//move the board, cannot move when board touch the border
+				
+				//控制板子移動
 				if(START && ~STOP && ~clear && ~fail)begin
 					if(L==1 && board_l != 3'b000)	begin
 						board_l=board_l-1'b1;
@@ -373,6 +375,8 @@ module t1(
 						board_m=board_m+1'b1;
 						board_r=board_r+1'b1;
 					end
+					
+					//控制球移動
 					if(~fire)begin w=0;	ball_x=board_m;	ball_y = 3'b001; up=1;end //if up==1, ball will go up
 					if(fire)begin
 						if(up)begin
@@ -405,7 +409,6 @@ module t1(
 								w=1;
 							end
 						end
-						//ball_x control
 						if(r_bound && ~m_bound)begin 
 							if(ball_x<7)	ball_x=ball_x+1;
 							else begin
@@ -420,16 +423,16 @@ module t1(
 								r_bound=~r_bound; 
 							end
 						end
-						//block control
-						for(integer t=0;t<8;t=t+1) begin //row
-							for(integer h=0;h<3;h=h+1) begin //col								
-								if(block2[t][h]==0 && ball_x==t && ball_y==(h+5) && up && r_bound && ~m_bound)begin //when ball on block2 and right in
+						//球打到磚塊的反應
+						for(integer t=0;t<8;t=t+1) begin 
+							for(integer h=0;h<3;h=h+1) begin 							
+								if(block2[t][h]==0 && ball_x==t && ball_y==(h+5) && up && r_bound && ~m_bound)begin 
 									block2[t][h]=1; ball_x=ball_x+1; ball_y=ball_y-1;up=0;									
 								end
 								if(block2[t][h]==0 && ball_x==t && ball_y==(h+5) && up && ~r_bound && ~m_bound)begin 
 									block2[t][h]=1; ball_x=ball_x-1; ball_y=ball_y-1;up=0;
 								end
-								if(block2[t][h]==0 && ball_y==(h+4) && ball_x==t && up)begin block2[t][h]=1; up=0; end //ball under block
+								if(block2[t][h]==0 && ball_y==(h+4) && ball_x==t && up)begin block2[t][h]=1; up=0; end 
 								if(block2[t][h]==1 && block1[t][h]==0 && ball_y==(h+4) && ball_x==t && up)begin 
 									block1[t][h]=1; up=0;end
 								if(block2[t][h]==1 && block1[t][h]==0 && ball_x==t && ball_y==(h+5) && up && r_bound && ~m_bound)begin 
@@ -438,7 +441,7 @@ module t1(
 								if(block2[t][h]==1 && block1[t][h]==0 && ball_x==t && ball_y==(h+5) && up && ~r_bound && ~m_bound)begin 
 									block1[t][h]=1; ball_x=ball_x-1; ball_y=ball_y-1;up=0;
 								end
-								//ball down
+								
 								if(block2[t][h]==0 && ball_x==t && ball_y==(h+5) && ~up && r_bound && ~m_bound)begin
 									block2[t][h]=1; r_bound=~r_bound;  ball_x=ball_x-1; ball_y=ball_y-1;end
 								if(block2[t][h]==0 && ball_x==t && ball_y==(h+5) && ~up && ~r_bound && ~m_bound)begin 
@@ -481,7 +484,8 @@ module t1(
 				end
 			end
 		
-		always @(posedge CLK_10k) //updata screen
+		//8*8及七段顯示
+		always @(posedge CLK_10k) 
 			begin
 				if(cnt >= 7)	cnt = 0;
 				else	cnt = cnt + 1;
@@ -533,6 +537,7 @@ module t1(
 			end			
 endmodule
 
+//調整clock
 module divfreq3(input CLK, output reg CLK_10k);
 	reg [24:0] count;
 	always @(posedge CLK)
